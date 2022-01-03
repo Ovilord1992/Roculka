@@ -16,9 +16,11 @@ public class Roles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private ERole name;
 
-    @ManyToMany(mappedBy = "roles")
-    private List<UserEntity> users;
-
+    public Roles(ERole name) {
+        this.name = name;
+    }
 }

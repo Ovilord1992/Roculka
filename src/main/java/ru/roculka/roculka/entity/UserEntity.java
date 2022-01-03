@@ -8,7 +8,10 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
-@Table(name = "user_entity")
+@Table(name = "user_entity", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "username"),
+        @UniqueConstraint(columnNames = "email")
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,22 +25,8 @@ public class UserEntity {
     @NonNull
     private String password;
 
-    private String firstname;
-    private String lastname;
-
-    @NonNull
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
-    private LocalDateTime birthDate;
-
-    @Transient
-    private Integer age;
-
     @NonNull
     private String email;
-    private String phone;
-
-    private LocalDateTime datecreate;
-    private LocalDateTime dateupdate;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
@@ -47,23 +36,9 @@ public class UserEntity {
     private Set<Roles> roles;
 
 
-    //Перед созданием нового пользователя
-    @PrePersist
-    private void prePersist(){
-        datecreate = LocalDateTime.now();
+    public UserEntity(@NonNull String username, @NonNull String password, @NonNull String email) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
     }
-
-    //Перед обновлением пользователя
-    @PreUpdate
-    private void preUpdate(){
-        dateupdate = LocalDateTime.now();
-    }
-
-    //После прогрузки сущности
-    @PostLoad
-    private void postLoad(){
-        //получаем актуальное значение возраста пользователя
-        age = LocalDateTime.now().getYear() - birthDate.getYear();
-    }
-
 }

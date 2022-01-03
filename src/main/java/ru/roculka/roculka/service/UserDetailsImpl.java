@@ -7,17 +7,17 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ru.roculka.roculka.entity.Roles;
+import org.springframework.stereotype.Service;
 import ru.roculka.roculka.entity.UserEntity;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Service
 public class UserDetailsImpl implements UserDetails {
 
     private static final long serialVersion = 1L;

@@ -18,8 +18,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.roculka.roculka.config.jwt.JwtUtils;
+import ru.roculka.roculka.entity.ERole;
+import ru.roculka.roculka.entity.Roles;
+import ru.roculka.roculka.entity.UserEntity;
 import ru.roculka.roculka.pojo.JwtResponse;
 import ru.roculka.roculka.pojo.LoginRequest;
+import ru.roculka.roculka.pojo.MessageResponse;
+import ru.roculka.roculka.pojo.SignupRequest;
 import ru.roculka.roculka.repo.RoleRepository;
 import ru.roculka.roculka.repo.UserRepository;
 import ru.roculka.roculka.service.UserDetailsImpl;
@@ -65,5 +70,62 @@ public class AuthController {
                 userDetails.getUsername(),
                 userDetails.getEmail(),
                 roles));
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest){
+        if (userRepository.existsByUsername(signupRequest.getUsername())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Username is exist"));
+        }
+
+        if (userRepository.existsByEmail(signupRequest.getEmail())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Email is exist"));
+        }
+
+        UserEntity user = new UserEntity(signupRequest.getUsername(),
+                signupRequest.getEmail(),
+                passwordEncoder.encode(signupRequest.getPassword()));
+
+        Set<String> reqRoles = signupRequest.getRoles();
+        Set<Roles> roles = new HashSet<>();
+
+        if (reqRoles == null) {
+            Roles userRole = roleRepository
+                    .findByName(ERole.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Error, Role USER is not found"));
+            roles.add(userRole);
+        } else {
+            reqRoles.forEach(r -> {
+                switch (r) {
+                    case "admin":
+                        Roles adminRole = roleRepository
+                                .findByName(ERole.ROLE_ADMIN)
+                                .orElseThrow(() -> new RuntimeException("Error, Role ADMIN is not found"));
+                        roles.add(adminRole);
+
+                        break;
+                    case "mod":
+                        Roles modRole = roleRepository
+                                .findByName(ERole.ROLE_MODERATOR)
+                                .orElseThrow(() -> new RuntimeException("Error, Role MODERATOR is not found"));
+                        roles.add(modRole);
+
+                        break;
+
+                    default:
+                        Roles userRole = roleRepository
+                                .findByName(ERole.ROLE_USER)
+                                .orElseThrow(() -> new RuntimeException("Error, Role USER is not found"));
+                        roles.add(userRole);
+                }
+            });
+        }
+        user.setRoles(roles);
+        userRepository.save(user);
+        return ResponseEntity.ok(new MessageResponse("User CREATED"));
     }
 }

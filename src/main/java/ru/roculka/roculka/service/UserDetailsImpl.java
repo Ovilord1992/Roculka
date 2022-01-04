@@ -36,8 +36,8 @@ public class UserDetailsImpl implements UserDetails {
         return new UserDetailsImpl(
                 user.getId(),
                 user.getUsername(),
-                user.getEmail(),
                 user.getPassword(),
+                user.getEmail(),
                 authorities);
     }
 
@@ -51,8 +51,9 @@ public class UserDetailsImpl implements UserDetails {
         return id;
     }
 
-    public String getEmail(){
-        return email;
+    @Override
+    public String getUsername() {
+        return username;
     }
 
     @Override
@@ -60,10 +61,10 @@ public class UserDetailsImpl implements UserDetails {
         return password;
     }
 
-    @Override
-    public String getUsername() {
-        return username;
+    public String getEmail(){
+        return email;
     }
+
 
     @Override
     public boolean isAccountNonExpired() {
